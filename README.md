@@ -1,2 +1,157 @@
 # Killer
 jeu de rôle 
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>KILLER – Prototype jouable</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#07060B;--cd:#100E18;--c2:#181429;--ln:#2A2440;--ink:#F4F2FB;--mt:#9A94B3;--vi:#8B5CF6;--bl:#EF4444;--ok:#34D399;color-scheme:dark;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+*{box-sizing:border-box}html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:radial-gradient(1100px 560px at 50% -10%,#2a1763,transparent 60%),var(--bg);background-attachment:fixed;color:var(--ink);font:400 15px/1.5 'Space Grotesk',system-ui,sans-serif;min-height:100vh}
+.w{max-width:960px;margin:0 auto;padding:0 18px 60px}
+h1,h2,h3{margin:0 0 8px;line-height:1.15}h1{font-size:clamp(32px,6vw,58px);font-weight:700}h2{font-size:24px}
+.mt{color:var(--mt)}.sm{font-size:13px}.lg{letter-spacing:.28em;font-size:12px;text-transform:uppercase;color:var(--vi)}
+.logo{font-weight:700;letter-spacing:.25em;font-size:20px;cursor:pointer}.logo b{color:var(--bl)}
+.nav{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:16px 0;flex-wrap:wrap}
+.nav div{display:flex;gap:6px;flex-wrap:wrap}
+.btn{font:600 14px 'Space Grotesk';border-radius:12px;border:1px solid var(--ln);background:var(--c2);color:var(--ink);padding:10px 16px;cursor:pointer;transition:transform .15s,border-color .15s,filter .15s}
+.btn:hover{transform:translateY(-2px);border-color:var(--vi)}.btn:active{transform:none}
+.btn.v{background:var(--vi);border-color:var(--vi);box-shadow:0 0 36px -10px var(--vi)}.btn.r{background:var(--bl);border-color:var(--bl)}.btn.g{background:none}
+.btn:disabled{opacity:.4;cursor:not-allowed;transform:none}
+button:focus-visible,input:focus-visible,select:focus-visible,summary:focus-visible{outline:2px solid var(--vi);outline-offset:2px}
+.card{background:linear-gradient(180deg,var(--c2),var(--cd));border:1px solid var(--ln);border-radius:18px;padding:20px;box-shadow:0 24px 40px -28px #000;transition:transform .2s,border-color .2s}
+.card.h:hover{transform:translateY(-4px);border-color:var(--vi)}
+.g2{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:14px}.row{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+input,select{width:100%;background:var(--bg);border:1px solid var(--ln);color:var(--ink);border-radius:10px;padding:10px 12px;font:inherit}
+label{display:block;font-size:13px;color:var(--mt);margin:12px 0 4px}
+.hero{display:grid;grid-template-columns:1.1fr .9fr;gap:30px;align-items:center;padding:36px 0}
+@media(max-width:700px){.hero{grid-template-columns:1fr}}
+.ring{position:relative;aspect-ratio:1;max-width:340px;width:100%;margin:auto}
+.ring i{position:absolute;inset:8%;border:1px dashed var(--ln);border-radius:50%;animation:o 30s linear infinite}
+.nd{position:absolute;width:62px;height:62px;border-radius:16px;background:var(--cd);border:1px solid var(--ln);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:20px;animation:pg 2.4s infinite}
+.nd:after{content:"";position:absolute;top:-4px;right:-4px;width:12px;height:12px;border-radius:50%;background:var(--bl)}
+@keyframes o{to{transform:rotate(360deg)}}@keyframes pg{0%{box-shadow:0 0 0 0 #8b5cf680}100%{box-shadow:0 0 0 14px #8b5cf600}}
+.chip{display:inline-block;padding:2px 10px;border-radius:99px;font-size:12px;border:1px solid var(--ln);color:var(--mt)}.chip.e{color:var(--bl);border-color:#7f1d1d}.chip.o{color:var(--ok);border-color:#065f46}
+.pl{display:flex;align-items:center;gap:10px;padding:10px 12px;border:1px solid var(--ln);border-radius:12px;background:var(--cd)}
+.av{font-size:26px}.pl.e{opacity:.5;text-decoration:line-through}
+.mis{border-color:var(--vi);background:radial-gradient(500px 200px at 20% 0,#3b1d8a55,transparent),var(--cd)}
+.veil{padding:26px;text-align:center;color:var(--mt);border:1px dashed var(--ln);border-radius:12px;margin:10px 0}
+#ov{position:fixed;inset:0;background:#000d;display:none;align-items:center;justify-content:center;text-align:center;z-index:9;padding:20px}
+#ov.on{display:flex}#ov .big{font-size:clamp(40px,12vw,100px);font-weight:700;color:var(--bl);animation:z .7s both}
+@keyframes z{from{transform:scale(2.2);opacity:0}to{transform:none;opacity:1}}
+#toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:#000;padding:10px 16px;border-radius:10px;opacity:0;pointer-events:none;transition:opacity .2s;z-index:10;max-width:90vw}#toast.on{opacity:1}
+table{width:100%;border-collapse:collapse}td,th{padding:8px;border-bottom:1px solid var(--ln);text-align:left;font-size:14px}th{color:var(--mt);font-weight:500}
+details{border-bottom:1px solid var(--ln);padding:12px 0}summary{cursor:pointer;font-weight:600}
+.demo{font-size:12px;color:var(--mt);max-width:240px}.demo select{margin-top:4px}
+.big2{font-size:40px;font-weight:700}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<div class="w" id="app"></div>
+<div id="ov" role="dialog" aria-live="assertive"></div>
+<div id="toast" role="status"></div>
+<script>
+var $=function(s){return document.querySelector(s)},esc=function(s){return String(s).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})};
+var AV=['🦊','🐺','🦉','🐙','🦄','🐲','🐼','🦁'],NM=['Lina','Hugo','Maya','Tom','Sacha','Inès','Noé','Zoé','Léo','Jade','Adam','Eva','Lou','Nina','Axel','Mila','Théo','Ruby','Enzo','Clara'];
+var lib=[
+{id:1,t:'Faites prononcer le mot « incroyable » à votre cible.',c:'Soirée',d:'Facile'},
+{id:2,t:'Obtenez un high five de votre cible.',c:'Soirée',d:'Facile'},
+{id:3,t:'Faites chanter quelques secondes une chanson à votre cible.',c:'Soirée',d:'Moyen'},
+{id:4,t:'Faites raconter une anecdote drôle à votre cible.',c:'Soirée',d:'Moyen'},
+{id:5,t:'Faites accepter à votre cible un défi amusant et sans risque.',c:'Soirée',d:'Difficile'},
+{id:6,t:'Faites dire « bonjour » avec un accent à votre cible.',c:'Bureau',d:'Facile'},
+{id:7,t:'Faites rire votre cible avec une blague qu’elle ne connaît pas.',c:'Bureau',d:'Moyen'},
+{id:8,t:'Obtenez de votre cible une recommandation de série.',c:'Étudiants',d:'Facile'},
+{id:9,t:'Faites placer le mot de votre choix dans une phrase de votre cible.',c:'Étudiants',d:'Moyen'},
+{id:10,t:'Obtenez un câlin de votre cible.',c:'Famille',d:'Facile'},
+{id:11,t:'Faites raconter un souvenir d’enfance à votre cible.',c:'Famille',d:'Moyen'}];
+var view='land',mode='up',U=null,G=null,as=null,rev={},proof='',games=[],hist=[],ST={p:0,w:0,k:0},tab='o';
+var usr=[{n:'Lina',e:'lina@exemple.fr',s:0},{n:'Hugo',e:'hugo@exemple.fr',s:0},{n:'Maya',e:'maya@exemple.fr',s:0},{n:'Tom',e:'tom@exemple.fr',s:0}];
+var reps=[{id:1,w:'Tom',y:'Mission jugée inappropriée dans « Soirée d’Alex ».'},{id:2,w:'Maya',y:'Pseudo offensant.'}];
+games.push({id:'g0',name:'Soirée d’Alex',code:'DEMO42',cat:'Soirée',max:8,dur:0,cd:0,src:'auto',org:'alex',st:'lobby',as:{},rq:[],log:[],pl:['Alex','Lina','Hugo','Maya','Tom'].map(function(n,i){return{id:i?'p'+i:'alex',n:n,a:AV[i],s:'a',k:0}})});
+function P(id){return G.pl.find(function(p){return p.id===id})}
+function shuf(a){a=a.slice();for(var i=a.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1)),t=a[i];a[i]=a[j];a[j]=t}return a}
+function code(){var a='ABCDEFGHJKMNPQRSTUVWXYZ23456789',r='',b=new Uint8Array(6);crypto.getRandomValues(b);b.forEach(function(x){r+=a[x%a.length]});return r}
+function toast(t){var e=$('#toast');e.textContent=t;e.classList.add('on');clearTimeout(toast.t);toast.t=setTimeout(function(){e.classList.remove('on')},2600)}
+function ov(h,ms,cb){var o=$('#ov');o.innerHTML=h;o.classList.add('on');setTimeout(function(){o.classList.remove('on');if(cb)cb()},ms)}
+function go(v){view=v;render();window.scrollTo(0,0)}
+function cats(){var s=['Toutes'];lib.forEach(function(m){if(s.indexOf(m.c)<0)s.push(m.c)});return s}
+function dur(ms){var s=Math.floor(ms/1000);return Math.floor(s/60)+' min '+('0'+s%60).slice(-2)+' s'}
+
+var V={
+land:function(){var n=['A','B','C','D'];return'<div class=nav><span class=logo>KILL<b>ER</b></span><div><button class="btn g" data-a=login>Connexion</button><button class="btn v" data-a=signup>Créer une partie</button></div></div>'+
+'<section class=hero><div><p class=lg>Jeu de missions secrètes</p><h1>Tout le monde a une cible. <span class=mt>Personne ne sait qui est la sienne.</span></h1><p class=mt>Des défis amusants et inoffensifs entre amis, de 4 à 20 joueurs. Le dernier joueur en jeu gagne.</p><p><button class="btn v" data-a=signup>Créer une partie</button> <button class="btn g" data-a=login>J’ai un compte</button></p></div>'+
+'<div class=ring><i></i>'+n.map(function(x,i){var a=i*Math.PI/2-Math.PI/2;return'<div class=nd style="left:calc(50% + '+Math.cos(a)*40+'% - 31px);top:calc(50% + '+Math.sin(a)*40+'% - 31px);animation-delay:'+i*.6+'s">'+x+'</div>'}).join('')+'<div class="row mt sm" style="position:absolute;inset:0;justify-content:center">A → B → C → D → A</div></div></section>'+
+'<h2>Comment jouer ?</h2><div class=g2>'+[['01','Créez ou rejoignez','Un code ou un lien suffit pour inviter vos amis.'],['02','Recevez votre mission','Une cible et un défi secret, visibles par vous seul.'],['03','Faites-la valider','L’organisateur valide : vous héritez de la cible de votre victime.']].map(function(s){return'<div class="card h"><span class=lg>'+s[0]+'</span><h3>'+s[1]+'</h3><p class=mt>'+s[2]+'</p></div>'}).join('')+'</div>'+
+'<h2 style="margin-top:34px">Fonctionnalités</h2><div class=g2>'+['Lobby en direct','Missions secrètes par joueur','Validation et contestation','Bibliothèque de missions personnalisable','Classement et statistiques','Missions toujours inoffensives'].map(function(f){return'<div class="card h">'+f+'</div>'}).join('')+'</div>'+
+'<h2 style="margin-top:34px">Témoignages <span class="chip">exemples fictifs</span></h2><div class=g2>'+[['Camille','Notre soirée d’anniversaire a changé de dimension.'],['Yanis','Ultra simple à lancer, tout le monde a joué en 2 minutes.'],['Sofia','On s’est tous pris au jeu au bureau.']].map(function(t){return'<div class=card><p>« '+t[1]+' »</p><span class="mt sm">'+t[0]+'</span></div>'}).join('')+'</div>'+
+'<h2 style="margin-top:34px">Formules</h2><div class=g2><div class=card><h3>FREE</h3><div class=big2>0 €</div><p class=mt>1 partie active · 8 joueurs max · missions de la bibliothèque</p></div><div class="card" style="border-color:var(--vi)"><h3>PRO</h3><div class=big2>4,99 €<span class="mt sm"> /mois</span></div><p class=mt>Parties illimitées · 20 joueurs · missions perso · stats avancées</p></div></div>'+
+'<h2 style="margin-top:34px">FAQ</h2><details><summary>Le jeu est-il sans danger ?</summary><p class=mt>Oui : toutes les missions sont inoffensives, sans intrusion ni humiliation, et chaque élimination est validée.</p></details><details><summary>Combien de joueurs ?</summary><p class=mt>De 4 à 20 joueurs par partie.</p></details><details><summary>Peut-on tricher ?</summary><p class=mt>Les éliminations passent par une validation, avec un délai de contestation pour la cible.</p></details>'+
+'<p class="mt sm" style="margin-top:40px;text-align:center">© KILLER · Prototype de démonstration · Confidentialité et RGPD à venir</p>'},
+auth:function(){var up=mode==='up';return'<div class=nav><span class=logo data-a=land>KILL<b>ER</b></span></div><div class=card style="max-width:420px;margin:30px auto"><h2>'+(up?'Inscription':'Connexion')+'</h2>'+(up?'<label for=an>Pseudo</label><input id=an maxlength=24>':'')+'<label for=ae>Email</label><input id=ae type=email><label for=ap>Mot de passe (8 caractères min.)</label><input id=ap type=password><p><button class="btn v" data-a=auth style="width:100%">'+(up?'Créer mon compte':'Se connecter')+'</button></p><p class="sm mt"><a href=# data-a=forgot style="color:var(--vi)">Mot de passe oublié ?</a> · <a href=# data-a=swap style="color:var(--vi)">'+(up?'J’ai déjà un compte':'Créer un compte')+'</a></p></div>'},
+nav:function(){return'<div class=nav><span class=logo data-a=home>KILL<b>ER</b></span><div><button class="btn g" data-a=home>Accueil</button><button class="btn g" data-a=profile>'+U.a+' '+esc(U.n)+'</button><button class="btn g" data-a=admin>Admin (démo)</button><button class="btn g" data-a=logout>Déconnexion</button></div></div>'},
+home:function(){return'<h2>Bienvenue, '+esc(U.n)+'</h2><div class=g2><div class=card><h3>Créer une partie</h3><p class=mt>Vous devenez l’organisateur.</p><button class="btn v" data-a=new>Créer une partie</button></div><div class=card><h3>Rejoindre une partie</h3><label for=jc>Code (essayez DEMO42)</label><input id=jc maxlength=8 style="text-transform:uppercase"><p><button class=btn data-a=join>Rejoindre</button></p></div></div><h2 style="margin-top:26px">Mes parties</h2>'+(games.filter(function(g){return g.pl.some(function(p){return p.id==='u'})}).map(function(g){return'<div class="card row" style="margin-bottom:10px"><div><b>'+esc(g.name)+'</b><br><span class="mt sm">Code '+g.code+' · '+g.pl.length+' joueurs</span></div><div><span class="chip">'+{lobby:'Salon',run:'En cours',end:'Terminée'}[g.st]+'</span> <button class=btn data-a=open data-id='+g.id+'>Ouvrir</button></div></div>'}).join('')||'<p class=mt>Aucune partie pour l’instant.</p>')},
+create:function(){return'<h2>Créer une partie</h2><div class=card><label for=gn>Nom de la partie</label><input id=gn maxlength=60><div class=g2><div><label for=gm>Joueurs max (4 à 20)</label><input id=gm type=number min=4 max=20 value=8></div><div><label for=gd>Durée</label><select id=gd><option value=0>Sans limite</option><option value=30>30 min</option><option value=60>1 h</option><option value=180>3 h</option></select></div><div><label for=gc>Catégorie de missions</label><select id=gc>'+cats().map(function(c){return'<option>'+esc(c)+'</option>'}).join('')+'</select></div><div><label for=gs>Missions</label><select id=gs><option value=auto>Générées automatiquement</option><option value=lib>Ordre de la bibliothèque</option></select></div><div><label for=gcd>Délai de contestation</label><select id=gcd><option value=0>Aucun</option><option value=15>15 secondes</option><option value=30>30 secondes</option></select></div></div><p class="mt sm">Validation : par l’organisateur.</p><button class="btn v" data-a=create>Créer et inviter</button></div>'},
+lobby:function(){var o=G.org==='u',me=G.pl.some(function(p){return p.id==='u'});return'<div class=row><div><h2>'+esc(G.name)+'</h2><span class=mt>Salon d’attente · '+G.pl.length+'/'+G.max+' joueurs · '+(G.max-G.pl.length)+' place(s)</span></div><div><button class=btn data-a=copy data-v='+G.code+'>Code '+G.code+'</button> <button class=btn data-a=copy data-v="https://killer.app/j/'+G.code+'">Copier le lien</button></div></div><div class=g2 style="margin:16px 0">'+G.pl.map(function(p){return'<div class=pl><span class=av>'+p.a+'</span><b>'+esc(p.n)+'</b>'+(p.id===G.org?' <span class=chip>organisateur</span>':'')+(o&&p.id!=='u'?'<button class="btn g" style="margin-left:auto;padding:4px 10px" data-a=kick data-id='+p.id+'>Retirer</button>':'')+'</div>'}).join('')+'</div>'+(o?'<button class=btn data-a=bot'+(G.pl.length>=G.max?' disabled':'')+'>+ Ajouter un joueur test</button> <button class="btn v" data-a=start'+(G.pl.length<4?' disabled':'')+'>Lancer la partie</button>'+(G.pl.length<4?'<p class="mt sm">Minimum 4 joueurs. Ajoutez des joueurs test pour essayer.</p>':''):'<p class=mt>En attente du lancement par l’organisateur…</p>')},
+play:function(){var me=P(as),m=G.as[as],al=G.pl.filter(function(p){return p.s==='a'}),isO=G.org==='u'&&as==='u';
+var mine=G.rq.filter(function(r){return r.h===as&&(r.s==='p'||r.s==='c')})[0],inc=G.rq.filter(function(r){return r.t===as&&r.s==='p'});
+var h='<div class=row><div><h2>'+esc(G.name)+'</h2><span class=mt>'+al.length+'/'+G.pl.length+' en jeu · <span id=clk></span></span></div><label class=demo>Mode démo : voir en tant que<select id=as>'+G.pl.map(function(p){return'<option value="'+p.id+'"'+(p.id===as?' selected':'')+'>'+esc(p.n)+(p.s==='e'?' (éliminé)':'')+'</option>'}).join('')+'</select></label></div><div class=g2 style="margin-top:14px">';
+if(me.s==='a'){var t=P(m.t);h+='<div class="card mis"><span class=lg>Ma mission secrète</span>'+(rev[as]?'<h2 style="margin-top:8px">'+esc(m.m)+'</h2><p>Cible : <b>'+t.a+' '+esc(t.n)+'</b></p>':'<div class=veil>Vérifiez que personne ne regarde, puis révélez.</div>')+'<button class=btn data-a=rev>'+(rev[as]?'Masquer':'Révéler')+'</button><hr style="border:0;border-top:1px solid var(--ln);margin:16px 0">'+(mine?'<p><span class=chip>En attente de validation</span></p>':'<label for=pf>Preuve (facultatif)</label><input id=pf value="'+esc(proof)+'" maxlength=140>')+'<p><button class="btn v" data-a=done'+(mine?' disabled':'')+'>J’ai réussi ma mission</button></p>'+inc.map(function(r){return'<p style="color:var(--bl)">Un joueur affirme vous avoir eu. <button class="btn r" data-a=contest data-id='+r.id+'>Contester</button></p>'}).join('')+'</div>'}
+else h+='<div class=card><h3>Vous êtes éliminé</h3><p class=mt>Éliminé par '+esc(P(me.by).n)+'. Vous pouvez suivre la partie sans intervenir.</p><p>Éliminations réussies : <b>'+me.k+'</b></p></div>';
+h+='<div class=card><h3>Classement</h3><table>'+G.pl.slice().sort(function(a,b){return b.k-a.k}).map(function(p){return'<tr><td>'+p.a+' '+esc(p.n)+'</td><td>'+p.k+' ✕</td><td><span class="chip '+(p.s==='a'?'o':'e')+'">'+(p.s==='a'?'en jeu':'éliminé')+'</span></td></tr>'}).join('')+'</table></div></div>';
+var rq=G.rq.filter(function(r){return r.s==='p'||r.s==='c'});
+if(isO)h+='<div class=card style="margin-top:14px"><h3>Validation (organisateur)</h3>'+(rq.map(function(r){return'<div class=row style="padding:8px 0;border-bottom:1px solid var(--ln)"><div>'+esc(P(r.h).n)+' → '+esc(P(r.t).n)+(r.s==='c'?' <span class="chip e">contestée</span>':'')+'<br><span class="mt sm">'+(r.pr?'Preuve : '+esc(r.pr)+' · ':'')+'délai <span data-dl='+r.dl+'></span></span></div><div><button class="btn v" data-a=ok data-id='+r.id+' data-dl='+r.dl+(Date.now()<r.dl?' disabled':'')+'>Valider</button> <button class=btn data-a=no data-id='+r.id+'>Refuser</button></div></div>'}).join('')||'<p class=mt>Aucune demande en attente.</p>')+'</div>';
+h+='<div class=card style="margin-top:14px"><h3>Éliminations</h3>'+(G.log.map(function(l){return'<div>'+esc(P(l.t).n)+' a été éliminé par '+esc(P(l.h).n)+'</div>'}).join('')||'<span class=mt>Aucune pour l’instant.</span>')+'</div>';return h},
+win:function(){var w=P(G.win);return'<div style="text-align:center;padding:50px 0"><p class=lg>Fin de partie</p><div style="font-size:80px">'+w.a+'</div><h1>'+esc(w.n)+' remporte la partie</h1><p class=mt>Durée '+dur(G.t1-G.t0)+' · '+G.log.length+' éliminations · '+G.pl.length+' joueurs</p><div class=card style="max-width:420px;margin:20px auto;text-align:left"><h3>Historique</h3>'+G.log.map(function(l,i){return'<div>'+(i+1)+'. '+esc(P(l.t).n)+' ← '+esc(P(l.h).n)+'</div>'}).join('')+'</div><button class="btn v" data-a=again>Rejouer</button> <button class=btn data-a=home>Accueil</button></div>'},
+profile:function(){return'<h2>Profil</h2><div class=g2><div class=card><label for=pn>Pseudo</label><input id=pn value="'+esc(U.n)+'" maxlength=24><label>Avatar</label><div>'+AV.map(function(a){return'<button class="btn'+(a===U.a?' v':'')+'" data-a=av data-v='+a+'>'+a+'</button>'}).join(' ')+'</div><p><button class=btn data-a=savep>Enregistrer</button></p></div><div class=card><h3>Statistiques</h3><p>Parties : <b>'+ST.p+'</b> · Victoires : <b>'+ST.w+'</b> · Éliminations : <b>'+ST.k+'</b></p><h3>Mon plan : '+U.plan.toUpperCase()+'</h3><p class=mt>'+(U.plan==='free'?'1 partie active, 8 joueurs max.':'Parties illimitées, 20 joueurs.')+'</p><button class="btn v" data-a=plan>'+(U.plan==='free'?'Passer Pro (essai)':'Revenir à FREE')+'</button><p class="mt sm">Paiement Stripe : étape 8.</p></div></div><h2 style="margin-top:24px">Historique des parties</h2>'+(hist.map(function(x){return'<div class="card row" style="margin-bottom:8px"><span>'+esc(x.n)+' · '+x.d+'</span><span>'+(x.w?'🏆 Victoire':'Défaite')+' · '+x.k+' ✕</span></div>'}).join('')||'<p class=mt>Aucune partie terminée.</p>')},
+admin:function(){var t={o:'Vue d’ensemble',u:'Utilisateurs',m:'Missions',r:'Signalements'},h='<h2>Administration</h2><p>'+Object.keys(t).map(function(k){return'<button class="btn'+(tab===k?' v':'')+'" data-a=tab data-id='+k+'>'+t[k]+'</button>'}).join(' ')+'</p>';
+if(tab==='o')h+='<div class=g2>'+[['Utilisateurs',usr.length+1],['Parties',games.length],['En cours',games.filter(function(g){return g.st==='run'}).length],['Signalements ouverts',reps.length]].map(function(s){return'<div class=card><span class=mt>'+s[0]+'</span><div class=big2>'+s[1]+'</div></div>'}).join('')+'</div>';
+if(tab==='u')h+='<div class=card><table><tr><th>Pseudo</th><th>Email</th><th></th></tr>'+usr.map(function(u,i){return'<tr><td>'+esc(u.n)+'</td><td>'+u.e+'</td><td><button class=btn data-a=susp data-id='+i+'>'+(u.s?'Réactiver':'Suspendre')+'</button></td></tr>'}).join('')+'</table></div>';
+if(tab==='m')h+='<div class=card><div class=g2><div><label for=mt2>Nouvelle mission</label><input id=mt2 maxlength=280></div><div><label for=mc>Catégorie (nouvelle ou existante)</label><input id=mc list=cl><datalist id=cl>'+cats().slice(1).map(function(c){return'<option>'+esc(c)+'</option>'}).join('')+'</datalist></div><div><label for=md>Difficulté</label><select id=md><option>Facile</option><option>Moyen</option><option>Difficile</option></select></div></div><p><button class="btn v" data-a=addm>Ajouter</button></p><table>'+lib.map(function(m){return'<tr><td>'+esc(m.t)+'</td><td>'+esc(m.c)+'</td><td>'+m.d+'</td><td><button class=btn data-a=delm data-id='+m.id+'>Supprimer</button></td></tr>'}).join('')+'</table></div>';
+if(tab==='r')h+='<div class=card>'+(reps.map(function(r){return'<div class=row style="padding:8px 0"><span><b>'+esc(r.w)+'</b> : '+esc(r.y)+'</span><button class=btn data-a=delr data-id='+r.id+'>Traiter</button></div>'}).join('')||'<span class=mt>Aucun signalement.</span>')+'</div>';return h}
+};
+function render(){var h=(U&&view!=='land'&&view!=='auth'?V.nav():'')+V[view]();$('#app').innerHTML=h;tick()}
+function tick(){document.querySelectorAll('[data-dl]').forEach(function(e){var r=Math.ceil((+e.dataset.dl-Date.now())/1000);if(e.tagName==='BUTTON')e.disabled=r>0;else e.textContent=r>0?r+' s':'écoulé'});var c=$('#clk');if(c&&G)c.textContent='Durée '+dur((G.t1||Date.now())-G.t0)}
+setInterval(tick,1000);
+function finish(w){G.st='end';G.t1=Date.now();G.win=w.id;if(G.pl.some(function(p){return p.id==='u'})){ST.p++;ST.k+=P('u').k;if(w.id==='u')ST.w++;hist.unshift({n:G.name,d:new Date().toLocaleDateString('fr-FR'),w:w.id==='u',k:P('u').k})}}
+var A={
+land:function(){go('land')},login:function(){mode='in';go('auth')},signup:function(){mode='up';go('auth')},swap:function(){mode=mode==='up'?'in':'up';go('auth')},
+forgot:function(){toast('Un lien de réinitialisation serait envoyé par email (Supabase Auth).')},
+auth:function(){var n=($('#an')||{value:''}).value.trim(),e=$('#ae').value.trim(),p=$('#ap').value;if(!/^\S+@\S+\.\S+$/.test(e))return toast('Email invalide.');if(p.length<8)return toast('Mot de passe : 8 caractères minimum.');if(mode==='up'&&n.length<3)return toast('Pseudo : 3 caractères minimum.');U={n:n||e.split('@')[0],e:e,a:AV[0],plan:'free'};go('home')},
+logout:function(){U=null;G=null;go('land')},home:function(){go('home')},profile:function(){go('profile')},admin:function(){go('admin')},new:function(){go('create')},
+create:function(){var n=$('#gn').value.trim(),mx=+$('#gm').value;if(n.length<3)return toast('Donnez un nom à la partie (3 caractères min.).');if(!(mx>=4&&mx<=20))return toast('Entre 4 et 20 joueurs.');if(U.plan==='free'&&(mx>8||games.some(function(g){return g.org==='u'&&g.st!=='end'})))return toast('Plan FREE : 1 partie active et 8 joueurs max. Passez Pro dans le profil.');
+G={id:'g'+Date.now(),name:n,code:code(),cat:$('#gc').value,max:mx,dur:+$('#gd').value,cd:+$('#gcd').value,src:$('#gs').value,org:'u',st:'lobby',pl:[{id:'u',n:U.n,a:U.a,s:'a',k:0}],as:{},rq:[],log:[]};games.push(G);go('lobby')},
+join:function(){var c=$('#jc').value.trim().toUpperCase(),g=games.find(function(x){return x.code===c});if(!g)return toast('Code inconnu.');if(g.st!=='lobby')return toast('La partie a déjà commencé.');if(!g.pl.some(function(p){return p.id==='u'})){if(g.pl.length>=g.max)return toast('Partie complète.');g.pl.push({id:'u',n:U.n,a:U.a,s:'a',k:0})}G=g;go('lobby')},
+open:function(e){G=games.find(function(g){return g.id===e.dataset.id});as=G.pl.some(function(p){return p.id==='u'})?'u':G.pl[0].id;go(G.st==='lobby'?'lobby':G.st==='run'?'play':'win')},
+copy:function(e){try{navigator.clipboard.writeText(e.dataset.v)}catch(x){}toast('Copié : '+e.dataset.v)},
+bot:function(){if(G.org!=='u'||G.pl.length>=G.max)return;var u=NM.filter(function(n){return!G.pl.some(function(p){return p.n===n})});var n=u[Math.floor(Math.random()*u.length)];G.pl.push({id:'b'+Date.now()+G.pl.length,n:n,a:AV[Math.floor(Math.random()*AV.length)],s:'a',k:0});render()},
+kick:function(e){if(G.org!=='u'||e.dataset.id==='u')return;G.pl=G.pl.filter(function(p){return p.id!==e.dataset.id});render()},
+start:function(){if(G.org!=='u'||G.pl.length<4)return;var n=3;(function s(){if(n===0){ov('',1,null);return real()}$('#ov').innerHTML='<div class=big>'+n+'</div>';$('#ov').classList.add('on');n--;setTimeout(s,800)})();
+function real(){var ps=shuf(G.pl),pool=lib.filter(function(m){return G.cat==='Toutes'||m.c===G.cat});if(G.src==='auto'&&ps.length>12)pool=pool.filter(function(m){return m.d!=='Difficile'});if(!pool.length)pool=lib;var ms=G.src==='auto'?shuf(pool):pool;ps.forEach(function(p,i){G.as[p.id]={t:ps[(i+1)%ps.length].id,m:ms[i%ms.length].t}});G.st='run';G.t0=Date.now();as='u';rev={};go('play')}},
+rev:function(){rev[as]=!rev[as];render()},
+done:function(){var a=G.as[as];if(!a||G.st!=='run')return;var me=P(as),t=P(a.t);if(me.s!=='a'||t.s!=='a'||a.t===as)return toast('Action impossible.');if(G.rq.some(function(r){return r.h===as&&(r.s==='p'||r.s==='c')}))return toast('Une demande est déjà en cours.');var f=$('#pf');G.rq.push({id:Date.now(),h:as,t:a.t,pr:f?f.value.trim():'',dl:Date.now()+G.cd*1000,s:'p'});proof='';toast('Demande envoyée à l’organisateur.');render()},
+contest:function(e){var r=G.rq.find(function(x){return x.id==e.dataset.id});if(r&&r.t===as&&r.s==='p'){r.s='c';toast('Contestation transmise à l’organisateur.');render()}},
+no:function(e){if(G.org!=='u'||as!=='u')return;var r=G.rq.find(function(x){return x.id==e.dataset.id});if(r&&(r.s==='p'||r.s==='c'))r.s='r';render()},
+ok:function(e){if(G.org!=='u'||as!=='u'||G.st!=='run')return;var r=G.rq.find(function(x){return x.id==e.dataset.id});if(!r||(r.s!=='p'&&r.s!=='c'))return;if(r.s==='p'&&Date.now()<r.dl)return toast('Délai de contestation en cours.');
+var h=P(r.h),t=P(r.t),a=G.as[r.h];if(h.s!=='a'||t.s!=='a'||!a||a.t!==r.t){r.s='r';render();return toast('Demande invalide (cible déjà éliminée) : refusée.')}
+t.s='e';t.by=h.id;h.k++;G.as[h.id]=G.as[t.id];delete G.as[t.id];r.s='o';G.rq.forEach(function(x){if((x.s==='p'||x.s==='c')&&(x.t===t.id||x.h===t.id))x.s='r'});G.log.push({h:h.id,t:t.id,at:Date.now()});
+var al=G.pl.filter(function(p){return p.s==='a'});if(al.length===1)finish(al[0]);
+ov('<div><p class=lg>Élimination</p><div class=big>'+esc(t.n)+'</div><p style="font-size:20px">éliminé par <b>'+esc(h.n)+'</b></p></div>',2800,function(){if(G.st==='end')go('win');else{if(as===t.id)as=h.id;render()}})},
+again:function(){var ps=G.pl.map(function(p){return{id:p.id,n:p.n,a:p.a,s:'a',k:0}});G={id:'g'+Date.now(),name:G.name,code:code(),cat:G.cat,max:G.max,dur:G.dur,cd:G.cd,src:G.src,org:G.org,st:'lobby',pl:ps,as:{},rq:[],log:[]};games.push(G);go('lobby')},
+av:function(e){U.a=e.dataset.v;render()},savep:function(){var n=$('#pn').value.trim();if(n.length<3)return toast('Pseudo : 3 caractères minimum.');U.n=n;toast('Profil enregistré.');render()},
+plan:function(){U.plan=U.plan==='free'?'pro':'free';render()},
+tab:function(e){tab=e.dataset.id;render()},susp:function(e){var u=usr[+e.dataset.id];u.s=u.s?0:1;toast(u.n+(u.s?' suspendu.':' réactivé.'));render()},
+addm:function(){var t=$('#mt2').value.trim(),c=$('#mc').value.trim();if(t.length<5||!c)return toast('Texte et catégorie requis.');lib.push({id:Date.now(),t:t,c:c,d:$('#md').value});render()},
+delm:function(e){lib=lib.filter(function(m){return m.id!=e.dataset.id});render()},delr:function(e){reps=reps.filter(function(r){return r.id!=e.dataset.id});render()}
+};
+document.addEventListener('click',function(e){var b=e.target.closest('[data-a]');if(!b||b.disabled)return;e.preventDefault();if(A[b.dataset.a])A[b.dataset.a](b)});
+document.addEventListener('change',function(e){if(e.target.id==='as'){as=e.target.value;render()}});
+document.addEventListener('input',function(e){if(e.target.id==='pf')proof=e.target.value});
+render();
+</script>
+</body>
+</html>
