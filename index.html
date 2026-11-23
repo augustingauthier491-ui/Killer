@@ -47,6 +47,14 @@ details{border-bottom:1px solid var(--ln);padding:12px 0}summary{cursor:pointer;
 .big2{font-size:40px;font-weight:700}
 @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<script src="./supabase-config.js"></script>
+<script>
+if (window.supabase && typeof SUPABASE_URL === 'string' && typeof SUPABASE_KEY === 'string'
+    && SUPABASE_URL.startsWith('https://') && SUPABASE_KEY) {
+  window.supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+}
+</script>
 </head>
 <body>
 <div class="w" id="app"></div>
@@ -71,6 +79,7 @@ var view='land',mode='up',U=null,G=null,as=null,rev={},proof='',games=[],hist=[]
 var usr=[{n:'Lina',e:'lina@exemple.fr',s:0},{n:'Hugo',e:'hugo@exemple.fr',s:0},{n:'Maya',e:'maya@exemple.fr',s:0},{n:'Tom',e:'tom@exemple.fr',s:0}];
 var reps=[{id:1,w:'Tom',y:'Mission jugée inappropriée dans « Soirée d’Alex ».'},{id:2,w:'Maya',y:'Pseudo offensant.'}];
 games.push({id:'g0',name:'Soirée d’Alex',code:'DEMO42',cat:'Soirée',max:8,dur:0,cd:0,src:'auto',org:'alex',st:'lobby',as:{},rq:[],log:[],pl:['Alex','Lina','Hugo','Maya','Tom'].map(function(n,i){return{id:i?'p'+i:'alex',n:n,a:AV[i],s:'a',k:0}})});
+function myId(){return U&&U.id?U.id:'u'}
 function P(id){return G.pl.find(function(p){return p.id===id})}
 function shuf(a){a=a.slice();for(var i=a.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1)),t=a[i];a[i]=a[j];a[j]=t}return a}
 function code(){var a='ABCDEFGHJKMNPQRSTUVWXYZ23456789',r='',b=new Uint8Array(6);crypto.getRandomValues(b);b.forEach(function(x){r+=a[x%a.length]});return r}
@@ -92,10 +101,10 @@ land:function(){var n=['A','B','C','D'];return'<div class=nav><span class=logo>K
 '<p class="mt sm" style="margin-top:40px;text-align:center">© KILLER · Prototype de démonstration · Confidentialité et RGPD à venir</p>'},
 auth:function(){var up=mode==='up';return'<div class=nav><span class=logo data-a=land>KILL<b>ER</b></span></div><div class=card style="max-width:420px;margin:30px auto"><h2>'+(up?'Inscription':'Connexion')+'</h2>'+(up?'<label for=an>Pseudo</label><input id=an maxlength=24>':'')+'<label for=ae>Email</label><input id=ae type=email><label for=ap>Mot de passe (8 caractères min.)</label><input id=ap type=password><p><button class="btn v" data-a=auth style="width:100%">'+(up?'Créer mon compte':'Se connecter')+'</button></p><p class="sm mt"><a href=# data-a=forgot style="color:var(--vi)">Mot de passe oublié ?</a> · <a href=# data-a=swap style="color:var(--vi)">'+(up?'J’ai déjà un compte':'Créer un compte')+'</a></p></div>'},
 nav:function(){return'<div class=nav><span class=logo data-a=home>KILL<b>ER</b></span><div><button class="btn g" data-a=home>Accueil</button><button class="btn g" data-a=profile>'+U.a+' '+esc(U.n)+'</button><button class="btn g" data-a=admin>Admin (démo)</button><button class="btn g" data-a=logout>Déconnexion</button></div></div>'},
-home:function(){return'<h2>Bienvenue, '+esc(U.n)+'</h2><div class=g2><div class=card><h3>Créer une partie</h3><p class=mt>Vous devenez l’organisateur.</p><button class="btn v" data-a=new>Créer une partie</button></div><div class=card><h3>Rejoindre une partie</h3><label for=jc>Code (essayez DEMO42)</label><input id=jc maxlength=8 style="text-transform:uppercase"><p><button class=btn data-a=join>Rejoindre</button></p></div></div><h2 style="margin-top:26px">Mes parties</h2>'+(games.filter(function(g){return g.pl.some(function(p){return p.id==='u'})}).map(function(g){return'<div class="card row" style="margin-bottom:10px"><div><b>'+esc(g.name)+'</b><br><span class="mt sm">Code '+g.code+' · '+g.pl.length+' joueurs</span></div><div><span class="chip">'+{lobby:'Salon',run:'En cours',end:'Terminée'}[g.st]+'</span> <button class=btn data-a=open data-id='+g.id+'>Ouvrir</button></div></div>'}).join('')||'<p class=mt>Aucune partie pour l’instant.</p>')},
+home:function(){return'<h2>Bienvenue, '+esc(U.n)+'</h2><div class=g2><div class=card><h3>Créer une partie</h3><p class=mt>Vous devenez l’organisateur.</p><button class="btn v" data-a=new>Créer une partie</button></div><div class=card><h3>Rejoindre une partie</h3><label for=jc>Code (essayez DEMO42)</label><input id=jc maxlength=8 style="text-transform:uppercase"><p><button class=btn data-a=join>Rejoindre</button></p></div></div><h2 style="margin-top:26px">Mes parties</h2>'+(games.filter(function(g){return g.pl.some(function(p){return p.id===myId()})}).map(function(g){return'<div class="card row" style="margin-bottom:10px"><div><b>'+esc(g.name)+'</b><br><span class="mt sm">Code '+g.code+' · '+g.pl.length+' joueurs</span></div><div><span class="chip">'+{lobby:'Salon',run:'En cours',end:'Terminée'}[g.st]+'</span> <button class=btn data-a=open data-id='+g.id+'>Ouvrir</button></div></div>'}).join('')||'<p class=mt>Aucune partie pour l’instant.</p>')},
 create:function(){return'<h2>Créer une partie</h2><div class=card><label for=gn>Nom de la partie</label><input id=gn maxlength=60><div class=g2><div><label for=gm>Joueurs max (4 à 20)</label><input id=gm type=number min=4 max=20 value=8></div><div><label for=gd>Durée</label><select id=gd><option value=0>Sans limite</option><option value=30>30 min</option><option value=60>1 h</option><option value=180>3 h</option></select></div><div><label for=gc>Catégorie de missions</label><select id=gc>'+cats().map(function(c){return'<option>'+esc(c)+'</option>'}).join('')+'</select></div><div><label for=gs>Missions</label><select id=gs><option value=auto>Générées automatiquement</option><option value=lib>Ordre de la bibliothèque</option></select></div><div><label for=gcd>Délai de contestation</label><select id=gcd><option value=0>Aucun</option><option value=15>15 secondes</option><option value=30>30 secondes</option></select></div></div><p class="mt sm">Validation : par l’organisateur.</p><button class="btn v" data-a=create>Créer et inviter</button></div>'},
-lobby:function(){var o=G.org==='u',me=G.pl.some(function(p){return p.id==='u'});return'<div class=row><div><h2>'+esc(G.name)+'</h2><span class=mt>Salon d’attente · '+G.pl.length+'/'+G.max+' joueurs · '+(G.max-G.pl.length)+' place(s)</span></div><div><button class=btn data-a=copy data-v='+G.code+'>Code '+G.code+'</button> <button class=btn data-a=copy data-v="https://killer.app/j/'+G.code+'">Copier le lien</button></div></div><div class=g2 style="margin:16px 0">'+G.pl.map(function(p){return'<div class=pl><span class=av>'+p.a+'</span><b>'+esc(p.n)+'</b>'+(p.id===G.org?' <span class=chip>organisateur</span>':'')+(o&&p.id!=='u'?'<button class="btn g" style="margin-left:auto;padding:4px 10px" data-a=kick data-id='+p.id+'>Retirer</button>':'')+'</div>'}).join('')+'</div>'+(o?'<button class=btn data-a=bot'+(G.pl.length>=G.max?' disabled':'')+'>+ Ajouter un joueur test</button> <button class="btn v" data-a=start'+(G.pl.length<4?' disabled':'')+'>Lancer la partie</button>'+(G.pl.length<4?'<p class="mt sm">Minimum 4 joueurs. Ajoutez des joueurs test pour essayer.</p>':''):'<p class=mt>En attente du lancement par l’organisateur…</p>')},
-play:function(){var me=P(as),m=G.as[as],al=G.pl.filter(function(p){return p.s==='a'}),isO=G.org==='u'&&as==='u';
+lobby:function(){var o=G.org===myId(),me=G.pl.some(function(p){return p.id===myId()});return'<div class=row><div><h2>'+esc(G.name)+'</h2><span class=mt>Salon d’attente · '+G.pl.length+'/'+G.max+' joueurs · '+(G.max-G.pl.length)+' place(s)</span></div><div><button class=btn data-a=copy data-v='+G.code+'>Code '+G.code+'</button> <button class=btn data-a=copy data-v="'+esc(location.origin+location.pathname+'?join='+G.code)+'">Copier le lien</button></div></div><div class=g2 style="margin:16px 0">'+G.pl.map(function(p){return'<div class=pl><span class=av>'+p.a+'</span><b>'+esc(p.n)+'</b>'+(p.id===G.org?' <span class=chip>organisateur</span>':'')+(o&&p.id!==myId()?'<button class="btn g" style="margin-left:auto;padding:4px 10px" data-a=kick data-id='+p.id+'>Retirer</button>':'')+'</div>'}).join('')+'</div>'+(o?'<button class=btn data-a=bot'+(G.pl.length>=G.max?' disabled':'')+'>+ Ajouter un joueur test</button> <button class="btn v" data-a=start'+(G.pl.length<4?' disabled':'')+'>Lancer la partie</button>'+(G.pl.length<4?'<p class="mt sm">Minimum 4 joueurs. Ajoutez des joueurs test pour essayer.</p>':''):'<p class=mt>En attente du lancement par l’organisateur…</p>')},
+play:function(){var me=P(as),m=G.as[as],al=G.pl.filter(function(p){return p.s==='a'}),isO=G.org===myId()&&as===myId();
 var mine=G.rq.filter(function(r){return r.h===as&&(r.s==='p'||r.s==='c')})[0],inc=G.rq.filter(function(r){return r.t===as&&r.s==='p'});
 var h='<div class=row><div><h2>'+esc(G.name)+'</h2><span class=mt>'+al.length+'/'+G.pl.length+' en jeu · <span id=clk></span></span></div><label class=demo>Mode démo : voir en tant que<select id=as>'+G.pl.map(function(p){return'<option value="'+p.id+'"'+(p.id===as?' selected':'')+'>'+esc(p.n)+(p.s==='e'?' (éliminé)':'')+'</option>'}).join('')+'</select></label></div><div class=g2 style="margin-top:14px">';
 if(me.s==='a'){var t=P(m.t);h+='<div class="card mis"><span class=lg>Ma mission secrète</span>'+(rev[as]?'<h2 style="margin-top:8px">'+esc(m.m)+'</h2><p>Cible : <b>'+t.a+' '+esc(t.n)+'</b></p>':'<div class=veil>Vérifiez que personne ne regarde, puis révélez.</div>')+'<button class=btn data-a=rev>'+(rev[as]?'Masquer':'Révéler')+'</button><hr style="border:0;border-top:1px solid var(--ln);margin:16px 0">'+(mine?'<p><span class=chip>En attente de validation</span></p>':'<label for=pf>Preuve (facultatif)</label><input id=pf value="'+esc(proof)+'" maxlength=140>')+'<p><button class="btn v" data-a=done'+(mine?' disabled':'')+'>J’ai réussi ma mission</button></p>'+inc.map(function(r){return'<p style="color:var(--bl)">Un joueur affirme vous avoir eu. <button class="btn r" data-a=contest data-id='+r.id+'>Contester</button></p>'}).join('')+'</div>'}
@@ -115,21 +124,21 @@ if(tab==='r')h+='<div class=card>'+(reps.map(function(r){return'<div class=row s
 function render(){var h=(U&&view!=='land'&&view!=='auth'?V.nav():'')+V[view]();$('#app').innerHTML=h;tick()}
 function tick(){document.querySelectorAll('[data-dl]').forEach(function(e){var r=Math.ceil((+e.dataset.dl-Date.now())/1000);if(e.tagName==='BUTTON')e.disabled=r>0;else e.textContent=r>0?r+' s':'écoulé'});var c=$('#clk');if(c&&G)c.textContent='Durée '+dur((G.t1||Date.now())-G.t0)}
 setInterval(tick,1000);
-function finish(w){G.st='end';G.t1=Date.now();G.win=w.id;if(G.pl.some(function(p){return p.id==='u'})){ST.p++;ST.k+=P('u').k;if(w.id==='u')ST.w++;hist.unshift({n:G.name,d:new Date().toLocaleDateString('fr-FR'),w:w.id==='u',k:P('u').k})}}
+function finish(w){G.st='end';G.t1=Date.now();G.win=w.id;if(G.pl.some(function(p){return p.id===myId()})){ST.p++;ST.k+=P(myId()).k;if(w.id===myId())ST.w++;hist.unshift({n:G.name,d:new Date().toLocaleDateString('fr-FR'),w:w.id===myId(),k:P(myId()).k})}}
 var A={
 land:function(){go('land')},login:function(){mode='in';go('auth')},signup:function(){mode='up';go('auth')},swap:function(){mode=mode==='up'?'in':'up';go('auth')},
 forgot:function(){toast('Un lien de réinitialisation serait envoyé par email (Supabase Auth).')},
 auth:function(){var n=($('#an')||{value:''}).value.trim(),e=$('#ae').value.trim(),p=$('#ap').value;if(!/^\S+@\S+\.\S+$/.test(e))return toast('Email invalide.');if(p.length<8)return toast('Mot de passe : 8 caractères minimum.');if(mode==='up'&&n.length<3)return toast('Pseudo : 3 caractères minimum.');U={n:n||e.split('@')[0],e:e,a:AV[0],plan:'free'};go('home')},
 logout:function(){U=null;G=null;go('land')},home:function(){go('home')},profile:function(){go('profile')},admin:function(){go('admin')},new:function(){go('create')},
-create:function(){var n=$('#gn').value.trim(),mx=+$('#gm').value;if(n.length<3)return toast('Donnez un nom à la partie (3 caractères min.).');if(!(mx>=4&&mx<=20))return toast('Entre 4 et 20 joueurs.');if(U.plan==='free'&&(mx>8||games.some(function(g){return g.org==='u'&&g.st!=='end'})))return toast('Plan FREE : 1 partie active et 8 joueurs max. Passez Pro dans le profil.');
-G={id:'g'+Date.now(),name:n,code:code(),cat:$('#gc').value,max:mx,dur:+$('#gd').value,cd:+$('#gcd').value,src:$('#gs').value,org:'u',st:'lobby',pl:[{id:'u',n:U.n,a:U.a,s:'a',k:0}],as:{},rq:[],log:[]};games.push(G);go('lobby')},
-join:function(){var c=$('#jc').value.trim().toUpperCase(),g=games.find(function(x){return x.code===c});if(!g)return toast('Code inconnu.');if(g.st!=='lobby')return toast('La partie a déjà commencé.');if(!g.pl.some(function(p){return p.id==='u'})){if(g.pl.length>=g.max)return toast('Partie complète.');g.pl.push({id:'u',n:U.n,a:U.a,s:'a',k:0})}G=g;go('lobby')},
-open:function(e){G=games.find(function(g){return g.id===e.dataset.id});as=G.pl.some(function(p){return p.id==='u'})?'u':G.pl[0].id;go(G.st==='lobby'?'lobby':G.st==='run'?'play':'win')},
+create:function(){var n=$('#gn').value.trim(),mx=+$('#gm').value;if(n.length<3)return toast('Donnez un nom à la partie (3 caractères min.).');if(!(mx>=4&&mx<=20))return toast('Entre 4 et 20 joueurs.');if(U.plan==='free'&&(mx>8||games.some(function(g){return g.org===myId()&&g.st!=='end'})))return toast('Plan FREE : 1 partie active et 8 joueurs max. Passez Pro dans le profil.');
+G={id:'g'+Date.now(),name:n,code:code(),cat:$('#gc').value,max:mx,dur:+$('#gd').value,cd:+$('#gcd').value,src:$('#gs').value,org:myId(),st:'lobby',pl:[{id:myId(),n:U.n,a:U.a,s:'a',k:0}],as:{},rq:[],log:[]};games.push(G);go('lobby')},
+join:function(){var c=$('#jc').value.trim().toUpperCase(),g=games.find(function(x){return x.code===c});if(!g)return toast('Code inconnu.');if(g.st!=='lobby')return toast('La partie a déjà commencé.');if(!g.pl.some(function(p){return p.id===myId()})){if(g.pl.length>=g.max)return toast('Partie complète.');g.pl.push({id:myId(),n:U.n,a:U.a,s:'a',k:0})}G=g;go('lobby')},
+open:function(e){G=games.find(function(g){return g.id===e.dataset.id});as=G.pl.some(function(p){return p.id===myId()})?myId():G.pl[0].id;go(G.st==='lobby'?'lobby':G.st==='run'?'play':'win')},
 copy:function(e){try{navigator.clipboard.writeText(e.dataset.v)}catch(x){}toast('Copié : '+e.dataset.v)},
 bot:function(){if(G.org!=='u'||G.pl.length>=G.max)return;var u=NM.filter(function(n){return!G.pl.some(function(p){return p.n===n})});var n=u[Math.floor(Math.random()*u.length)];G.pl.push({id:'b'+Date.now()+G.pl.length,n:n,a:AV[Math.floor(Math.random()*AV.length)],s:'a',k:0});render()},
-kick:function(e){if(G.org!=='u'||e.dataset.id==='u')return;G.pl=G.pl.filter(function(p){return p.id!==e.dataset.id});render()},
+kick:function(e){if(G.org!=='u'||e.dataset.id===myId())return;G.pl=G.pl.filter(function(p){return p.id!==e.dataset.id});render()},
 start:function(){if(G.org!=='u'||G.pl.length<4)return;var n=3;(function s(){if(n===0){ov('',1,null);return real()}$('#ov').innerHTML='<div class=big>'+n+'</div>';$('#ov').classList.add('on');n--;setTimeout(s,800)})();
-function real(){var ps=shuf(G.pl),pool=lib.filter(function(m){return G.cat==='Toutes'||m.c===G.cat});if(G.src==='auto'&&ps.length>12)pool=pool.filter(function(m){return m.d!=='Difficile'});if(!pool.length)pool=lib;var ms=G.src==='auto'?shuf(pool):pool;ps.forEach(function(p,i){G.as[p.id]={t:ps[(i+1)%ps.length].id,m:ms[i%ms.length].t}});G.st='run';G.t0=Date.now();as='u';rev={};go('play')}} ,
+function real(){var ps=shuf(G.pl),pool=lib.filter(function(m){return G.cat==='Toutes'||m.c===G.cat});if(G.src==='auto'&&ps.length>12)pool=pool.filter(function(m){return m.d!=='Difficile'});if(!pool.length)pool=lib;var ms=G.src==='auto'?shuf(pool):pool;ps.forEach(function(p,i){G.as[p.id]={t:ps[(i+1)%ps.length].id,m:ms[i%ms.length].t}});G.st='run';G.t0=Date.now();as=myId();rev={};go('play')}} ,
 rev:function(){rev[as]=!rev[as];render()},
 done:function(){var a=G.as[as];if(!a||G.st!=='run')return;var me=P(as),t=P(a.t);if(me.s!=='a'||t.s!=='a'||a.t===as)return toast('Action impossible.');if(G.rq.some(function(r){return r.h===as&&(r.s==='p'||r.s==='c')}))return toast('Une demande est déjà en cours.');var f=$('#pf');G.rq.push({id:Date.now(),h:as,t:a.t,pr:f?f.value.trim():'',dl:Date.now()+G.cd*1000,s:'p'});proof='';toast('Demande envoyée à l’organisateur.');render()},
 contest:function(e){var r=G.rq.find(function(x){return x.id==e.dataset.id});if(r&&r.t===as&&r.s==='p'){r.s='c';toast('Contestation transmise à l’organisateur.');render()}},
@@ -149,6 +158,157 @@ delm:function(e){lib=lib.filter(function(m){return m.id!=e.dataset.id});render()
 document.addEventListener('click',function(e){var b=e.target.closest('[data-a]');if(!b||b.disabled)return;e.preventDefault();if(A[b.dataset.a])A[b.dataset.a](b)});
 document.addEventListener('change',function(e){if(e.target.id==='as'){as=e.target.value;render()}});
 document.addEventListener('input',function(e){if(e.target.id==='pf')proof=e.target.value});
+
+/* KILLER MULTIJOUEUR — Supabase Auth + synchronisation */
+var db=window.supabaseClient, syncBusy=false, lastState='', watchTimer=null;
+function errMessage(e){return (e&&e.message)||'Erreur inconnue'}
+function needDB(){if(!db){toast('Configuration Supabase absente : vérifiez supabase-config.js');return false}return true}
+function pack(g){return JSON.parse(JSON.stringify(g))}
+async function saveGame(){
+  if(!db||!G||G.id==='g0')return;
+  var state=pack(G);
+  var r=await db.from('killer_games').upsert({id:G.id,code:G.code,state:state,updated_at:new Date().toISOString()},{onConflict:'id'});
+  if(r.error)throw r.error;
+  lastState=JSON.stringify(state);
+}
+async function loadGame(codeOrId,byCode){
+  var q=db.from('killer_games').select('state');
+  var r=await (byCode?q.eq('code',codeOrId):q.eq('id',codeOrId)).maybeSingle();
+  if(r.error)throw r.error;
+  return r.data&&r.data.state;
+}
+function showGame(g){
+  G=g;var i=games.findIndex(function(x){return x.id===g.id});
+  if(i<0)games.push(g);else games[i]=g;
+  if(!G.pl.some(function(p){return p.id===myId()})){toast('Vous ne faites pas partie de cette partie.');go('home');return}
+  as=myId();lastState=JSON.stringify(g);
+  go(g.st==='lobby'?'lobby':g.st==='run'?'play':'win');
+}
+async function refreshGames(){
+  if(!db||!U||syncBusy)return;
+  if(G&&G.id!=='g0'){
+    var g=await loadGame(G.id,false);
+    if(g&&JSON.stringify(g)!==lastState){
+      G=g;lastState=JSON.stringify(g);
+      var i=games.findIndex(function(x){return x.id===g.id});
+      if(i<0)games.push(g);else games[i]=g;
+      if(['lobby','play','win'].includes(view)) {
+        var next=g.st==='lobby'?'lobby':g.st==='run'?'play':'win';
+        if(view!==next)go(next);else render();
+      }
+    }
+  }
+}
+async function loadMine(){
+  if(!db||!U)return;
+  var r=await db.from('killer_games').select('state').order('updated_at',{ascending:false}).limit(100);
+  if(r.error)throw r.error;
+  games=games.filter(function(g){return g.id==='g0'});
+  (r.data||[]).forEach(function(x){var g=x.state;if(g&&g.pl&&g.pl.some(function(p){return p.id===myId()}))games.push(g)});
+}
+A.auth=async function(){
+  if(!needDB())return;
+  var n=($('#an')||{value:''}).value.trim(),e=$('#ae').value.trim(),p=$('#ap').value;
+  if(!/^\S+@\S+\.\S+$/.test(e))return toast('Email invalide.');
+  if(p.length<8)return toast('Mot de passe : 8 caractères minimum.');
+  if(mode==='up'&&n.length<3)return toast('Pseudo : 3 caractères minimum.');
+  var r=mode==='up'
+    ?await db.auth.signUp({email:e,password:p,options:{data:{pseudo:n}}})
+    :await db.auth.signInWithPassword({email:e,password:p});
+  if(r.error)return toast(errMessage(r.error));
+  if(!r.data.session)return toast('Compte créé. Confirmez votre email puis connectez-vous.');
+  var user=r.data.user;
+  U={id:user.id,n:user.user_metadata.pseudo||n||e.split('@')[0],e:e,a:AV[0],plan:'free'};
+  try{await loadMine()}catch(x){toast('Erreur de chargement : '+errMessage(x))}
+  go('home');
+};
+A.forgot=async function(){
+  if(!needDB())return;
+  var email=prompt('Votre adresse email pour réinitialiser le mot de passe :');
+  if(!email)return;
+  var r=await db.auth.resetPasswordForEmail(email,{redirectTo:location.origin+location.pathname});
+  toast(r.error?errMessage(r.error):'Email de réinitialisation demandé.');
+};
+A.logout=async function(){if(db)await db.auth.signOut();U=null;G=null;games=games.filter(function(g){return g.id==='g0'});go('land')};
+A.create=async function(){
+  if(!needDB()||!U)return;
+  var n=$('#gn').value.trim(),mx=+$('#gm').value;
+  if(n.length<3)return toast('Nom : 3 caractères minimum.');
+  if(!(mx>=4&&mx<=20))return toast('Entre 4 et 20 joueurs.');
+  if(U.plan==='free'&&mx>8)return toast('FREE : 8 joueurs maximum.');
+  if(U.plan==='free'&&games.some(function(g){return g.org===myId()&&g.st!=='end'}))
+    return toast('FREE : une seule partie active.');
+  G={id:'g'+Date.now()+'-'+Math.random().toString(36).slice(2,8),name:n,code:code(),
+    cat:$('#gc').value,max:mx,dur:+$('#gd').value,cd:+$('#gcd').value,src:$('#gs').value,
+    org:myId(),st:'lobby',pl:[{id:myId(),n:U.n,a:U.a,s:'a',k:0}],as:{},rq:[],log:[]};
+  try{await saveGame();games.push(G);go('lobby')}
+  catch(e){toast('Création impossible : '+errMessage(e))}
+};
+A.join=async function(){
+  if(!needDB()||!U)return;
+  var c=$('#jc').value.trim().toUpperCase();
+  try{
+    var g=await loadGame(c,true);
+    if(!g)return toast('Code inconnu.');
+    if(g.st!=='lobby')return toast('La partie a déjà commencé.');
+    if(!g.pl.some(function(p){return p.id===myId()})){
+      if(g.pl.length>=g.max)return toast('Partie complète.');
+      g.pl.push({id:myId(),n:U.n,a:U.a,s:'a',k:0});
+    }
+    G=g;await saveGame();showGame(g);
+  }catch(e){toast('Impossible de rejoindre : '+errMessage(e))}
+};
+A.open=async function(e){
+  if(!needDB())return;
+  try{var g=await loadGame(e.dataset.id,false);if(!g)return toast('Partie introuvable.');showGame(g)}
+  catch(x){toast(errMessage(x))}
+};
+var mutating=['bot','kick','done','contest','no','ok','again','start'];
+mutating.forEach(function(k){
+  var old=A[k];
+  A[k]=async function(e){
+    if(!G||!db)return;
+    try{
+      syncBusy=true;
+      var fresh=await loadGame(G.id,false);
+      if(fresh)G=fresh;
+      var result=old(e);
+      // start() uses an asynchronous countdown; real() saves after the countdown.
+      if(k!=='start')await saveGame();
+      return result;
+    }catch(x){toast('Synchronisation : '+errMessage(x))}
+    finally{syncBusy=false}
+  };
+});
+var oldReal=A.start;
+// Save after game starts, not before the countdown finishes.
+var originalGo=go;
+go=function(v){
+  originalGo(v);
+  if(v==='play'&&G&&G.st==='run'&&G.org===myId())saveGame().catch(function(e){toast(errMessage(e))});
+};
+A.savep=function(){var n=$('#pn').value.trim();if(n.length<3)return toast('Pseudo : 3 caractères minimum.');U.n=n;toast('Pseudo modifié pour cette session.');render()};
+A.plan=function(){toast('Paiement PRO non activé. Aucun abonnement ne sera facturé.')};
+var originalHome=A.home;
+A.home=async function(){try{await loadMine()}catch(e){toast(errMessage(e))}originalHome()};
+var originalProfile=V.profile;
+V.profile=function(){return originalProfile().replace('Passer Pro (essai)','PRO bientôt disponible').replace('Paiement Stripe : étape 8.','Paiement non activé.')};
+var originalLand=V.land;
+V.land=function(){return originalLand().replace('Prototype de démonstration','Version de test multijoueur')};
+if(db){
+  db.auth.getUser().then(async function(r){
+    if(r.data&&r.data.user){
+      var user=r.data.user;
+      U={id:user.id,n:user.user_metadata.pseudo||user.email.split('@')[0],e:user.email,a:AV[0],plan:'free'};
+      try{await loadMine()}catch(e){toast('Base de données : '+errMessage(e))}
+      go('home');
+      var invite=new URLSearchParams(location.search).get('join');
+      if(invite){setTimeout(function(){var el=$('#jc');if(el){el.value=invite.toUpperCase();A.join()}},150)}
+    }
+  });
+}
+setInterval(function(){refreshGames().catch(function(e){console.warn('Synchronisation',e)})},2000);
+
 render();
 </script>
 </body>
